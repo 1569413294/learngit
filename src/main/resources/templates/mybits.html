@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html  xmlns="http://www.w3.org/1999/xhtml">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>列表</title>
+    <script type="text/javascript" src="../static/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+                var pages;
+                var pm;
+                var wy;
+                var xs;
+                xialakuang();
+                smfy(1);
+
+        });
+        //动态下拉框
+        function xialakuang() {
+            $.ajax({
+                //几个参数需要注意一下
+                type: "POST",//方法类型
+                url: "http://localhost:8080/xialakuang" ,//url
+                success: function (data) {
+                    var s = "";
+                    for (var i =  0; i <data.length ; i++) {
+                        s+=" <option value="+data[i].id+">"+data[i].dname+"</option>";
+                    }
+                    $(s).appendTo($("#diqu"));
+                },
+                error : function() {
+                    alert("异常！");
+                }
+            });
+        }
+    </script>
+    <script>
+        //公共查询方法
+        function smfy(obj) {
+            if(obj=='tz'){
+                obj = $("#tz").val();
+                if(obj>pages){
+                    alert("不能超过最大页数");
+                    return false;
+                }
+            }
+            var url = "http://localhost:8080/selectYearHonor?page="+obj;
+            if(obj=='xs'){
+                xs = $("#xs").val();
+                url = "http://localhost:8080/selectYearHonor?pageSize="+xs;
+
+            }
+
+            if(xs>0 && obj!='xs'){
+                url = "http://localhost:8080/selectYearHonor?page="+obj+"&pageSize="+$("#xs").val();
+            }
+            // if(xs!=0){
+            //
+           // }
+
+            $.ajax({
+                //几个参数需要注意一下
+                type: "POST",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: url,//url
+                data:$("#form1").serialize(),
+                success: function (data) {
+                    $("#t1").html("");
+                    var s = " <tr> <td>id</td> <td>姓名</td> <td>级别</td> <td>性别</td> <td>工资</td> <td>地区名字</td> </tr>";
+                    for (var i = 0; i <data.list.length; i++) {
+                        if(data.list[i].esix==1){
+                            s+=" <tr> <td>"+data.list[i].id+"</td> <td>"+data.list[i].ename+"</td> <td>"+data.list[i].elevel+"</td> <td>男</td> <td>"+data.list[i].ewages+"</td> <td>"+data.list[i].dname+"</td> </tr>";
+                        }
+                        if(data.list[i].esix==2){
+                            s+=" <tr> <td>"+data.list[i].id+"</td> <td>"+data.list[i].ename+"</td> <td>"+data.list[i].elevel+"</td> <td>女</td> <td>"+data.list[i].ewages+"</td> <td>"+data.list[i].dname+"</td> </tr>";
+                        }
+
+                    }
+                    $(s).appendTo("#t1");
+                    pages =  data.pages;
+                    pm = data.pageNum;
+                    $("#pages").text(data.pages);
+                    $("#pagesize").text(data.pageSize);
+                    $("#total").text(data.total);
+                    $("#pm").text(data.pageNum);
+                    $("#to2").text(data.pages);
+
+                },
+                error : function() {
+                    alert("异常！");
+                }
+            });
+        }
+        //下一页
+        function next() {
+            if(pm<pages){
+                smfy(pm+1);
+            }
+        }
+        //上一页
+        function up() {
+            if(pm>1){
+                smfy(pm-1);
+            }
+        }
+        //尾页
+        function weiye() {
+            smfy(pages);
+        }
+    </script>
+</head>
+<body>
+<div style="width: 1350px;height: 610px;margin-left: 10px">
+        <div style="width: 99%;height: 35px;margin: 10px 10px 10px 30px">
+        <form id="form1">
+        地区名字：<select id="diqu" name="Did" onmouseout="  smfy(1)">
+            <option value="">--请选择--</option>
+
+        </select>
+        工资：<select name="Ewages"  onmouseout="smfy(1)">
+            <option value="">--请选择--</option>
+            <option value ="1">升序</option>
+            <option value="2">降序</option>
+        </select>
+            级别：<select name="Elevel" onmouseout="smfy(1)">
+            <option value ="">---请选择---</option>
+            <option value ="王者">王者</option>
+            <option value ="宗师">宗师</option>
+            <option value ="钻石">钻石</option>
+            <option value ="铂金">铂金</option>
+            <option value ="黄金">黄金</option>
+            <option value="青铜">青铜</option>
+            <option value="白银">白银</option>
+            <option value="黄铜">黄铜</option>
+            <option value="塑料">塑料</option>
+        </select>
+            性别：<select name="Esix" onmouseout="smfy(1)">
+            <option value ="">---请选择---</option>
+            <option value ="1">男</option>
+            <option value="2">女</option>
+        </select>
+            员工姓名：<input type="text"  name="Ename"   placeholder="请输入关键字"/>
+            <input type="button" onclick="smfy(1)" value="查询">
+        </form>
+        </div>
+    <table  id="t1"  class="table table-bordered" style="border: 1px solid royalblue;width:99%;text-align: center;margin: 30px 15px 15px 15px">
+
+    </table>
+
+    <div style="width: 1000px;margin-top: 120px">
+        共<span id="pages"></span>页&nbsp;&nbsp;
+        每页<span id="pagesize"></span>条&nbsp;
+        共<span id="total"></span>条&nbsp;&nbsp;
+        <span id="pm"></span>\ <span id="to2"></span>&nbsp;&nbsp;
+        <a href="javascript:void(0)" onclick="smfy(1);">首页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="javascript:void(0)" onclick="up()">上一页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="javascript:void(0)" onclick="next()" >下一页</a>
+        <a href="javascript:void(0)" onclick="weiye()" >尾页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+        跳转到第<input type="text" id="tz"/>页&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="smfy('tz')">跳转</button>
+        每页显示
+        <select id="xs" onmouseout="smfy('xs')">
+            <option value="1">1</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+        </select>
+    </div>
+
+
+</div>
+</body>
+</html>

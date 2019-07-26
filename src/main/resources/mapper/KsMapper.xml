@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.bgs.ggx_demo.Mapper.KsMapper">
+
+    <!--  //精确查询下拉框
+    List<Emp> jingquechaxun(Emp emp);-->
+    <select id="jingquechaxun" resultType="Emp">
+        SELECT
+        e_emp.e_id id,
+        e_emp.e_name Ename,
+        e_emp.e_six Esix,
+        e_emp.e_wages Ewages,
+        e_emp.e_level Elevel,
+        d_pei.d_nmae dname
+        FROM
+        e_emp,
+        d_pei
+        WHERE
+        e_emp.d_id = d_pei.d_id
+            <if test="ename!=null and ename!=''">
+                and e_emp.e_name like  CONCAT('%',#{ename},'%')
+            </if>
+            <if test="Did!=null and Did!=''">
+                and e_emp.d_id = #{Did}
+            </if>
+            <if test="Elevel!=null and Elevel!=''">
+                and e_emp.e_level = #{Elevel}
+            </if>
+            <if test="Esix!=null and Esix!=''">
+                and   e_emp.e_six = #{Esix}
+            </if>
+
+            <if test="Ewages==1">
+                ORDER by e_emp.e_wages asc
+            </if>
+        <if test="Ewages==2">
+            ORDER by e_emp.e_wages desc
+        </if>
+    </select>
+
+
+<!--        //模糊查询员工信息
+    List<Emp> mohu(String ename);-->
+    <select id="mohu" resultType="Emp">
+        SELECT
+	e_emp.e_id id,
+	e_emp.e_name Ename,
+	e_emp.e_six Esix,
+	e_emp.e_wages Ewages,
+	e_emp.e_level Elevel,
+	d_pei.d_nmae dname
+FROM
+	e_emp,
+	d_pei
+WHERE
+	e_emp.d_id = d_pei.d_id
+
+    </select>
+
+</mapper>
